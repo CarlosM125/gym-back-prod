@@ -1,0 +1,13 @@
+package com.example.gymbackend.repository;
+
+import com.example.gymbackend.model.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByDocumentId(String documentId);
+    Optional<User> findByPinZkteco(Integer pinZkteco);
+}
