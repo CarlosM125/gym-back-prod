@@ -1,22 +1,17 @@
 package com.example.gymbackend.payload.dto;
 
-import lombok.AllArgsConstructor;
+import com.example.gymbackend.model.Role;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class UserDTO {
     private Long id;
-    private Long homeBranchId;
-    private Integer pinZkteco;
-    private String fullName;
-    private String documentId;
-    private String email;
-    private LocalDateTime createdAt;
+    private String username;
+    private String password; // write-only, for account creation
+    private Role role;
+    private String firstName;
+    private String lastName;
+    private Boolean isActive;
 }

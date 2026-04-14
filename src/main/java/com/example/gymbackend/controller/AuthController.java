@@ -1,9 +1,9 @@
 package com.example.gymbackend.controller;
 
 import com.example.gymbackend.model.Role;
-import com.example.gymbackend.model.SystemAccount;
+import com.example.gymbackend.model.User;
 import com.example.gymbackend.payload.response.ApiResponse;
-import com.example.gymbackend.repository.SystemAccountRepository;
+import com.example.gymbackend.repository.UserRepository;
 import com.example.gymbackend.security.JwtUtil;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
     private final JwtUtil jwtUtil;
-    private final SystemAccountRepository systemAccountRepository;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
@@ -31,13 +31,14 @@ public class AuthController {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
         );
-        
+
         final UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
         final String jwt = jwtUtil.generateToken(userDetails);
-        
-        SystemAccount account = systemAccountRepository.findByUsername(request.getUsername()).orElseThrow();
-        
-        AuthResponse response = new AuthResponse(jwt, account.getRole().name(), account.getFirstName() + " " + account.getLastName());
+
+        User user = userRepository.findByUsername(request.getUsername()).orElseThrow();
+
+        AuthResponse response = new AuthResponse(jwt, user.getRole().name(),
+                user.getFirstName() + " " + user.getLastName());
         return ResponseEntity.ok(ApiResponse.success(response, "Login successful"));
     }
 

@@ -13,13 +13,13 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class MembershipDTO {
     private Long id;
-    private Long userId;
+    private Long customerId;   // renamed from userId
     private Long branchId;
     private Long planId;
     private Double amountPaid;
     private LocalDate startDate;
     private LocalDate endDate;
     private String status;
-    private String userFullName;
+    private String customerFullName;  // renamed from userFullName
     private String documentId;
 }

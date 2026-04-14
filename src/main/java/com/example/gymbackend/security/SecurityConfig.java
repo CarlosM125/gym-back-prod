@@ -31,6 +31,7 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configure(http))
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 // All analytics endpoints require ADMIN level
                 .requestMatchers(HttpMethod.GET, "/api/v1/memberships/historical-stats").hasAnyRole("ADMIN_TI", "ADMIN_GYM")

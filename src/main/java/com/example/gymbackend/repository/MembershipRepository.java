@@ -15,13 +15,12 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
     @Query("SELECT m FROM Membership m WHERE m.endDate = :today AND m.status = 'ACTIVE'")
     List<Membership> findMembershipsExpiringToday(@Param("today") LocalDate today);
 
-    // Using native query or generic JPQL to extract month signups (for PostgreSQL)
     @Query(value = "SELECT EXTRACT(MONTH FROM start_date) as month, COUNT(*) as signups " +
             "FROM memberships " +
             "WHERE EXTRACT(YEAR FROM start_date) = :year " +
             "GROUP BY EXTRACT(MONTH FROM start_date) " +
             "ORDER BY month ASC", nativeQuery = true)
     List<Object[]> findHistoricalSignupsByYear(@Param("year") int year);
-    
-    List<Membership> findByUserId(Long userId);
+
+    List<Membership> findByCustomerId(Long customerId);
 }

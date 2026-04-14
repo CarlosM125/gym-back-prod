@@ -4,6 +4,10 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Represents a system user (employee, manager, or admin who logs into the ERP).
+ * This is NOT a gym client/member — see Customer.java for that.
+ */
 @Entity
 @Table(name = "users")
 @Getter
@@ -14,22 +18,22 @@ public class User extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "home_branch_id")
-    private Branch homeBranch;
+    @Column(unique = true, nullable = false)
+    private String username;
 
-    @Column(name = "pin_zkteco", unique = true, nullable = false)
-    private Integer pinZkteco;
+    @Column(name = "password_hash", nullable = false)
+    private String passwordHash;
 
-    @Column(name = "full_name", length = 150)
-    private String fullName;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
 
-    @Column(name = "document_id", length = 50, unique = true)
-    private String documentId;
+    @Column(name = "first_name")
+    private String firstName;
 
-    @Column(length = 150)
-    private String email;
+    @Column(name = "last_name")
+    private String lastName;
 
-    @Column(name = "profile_image_url", length = 500)
-    private String profileImageUrl;
+    @Column(name = "is_active")
+    private Boolean isActive = true;
 }

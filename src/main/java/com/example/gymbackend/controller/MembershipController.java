@@ -44,4 +44,9 @@ public class MembershipController {
     public ResponseEntity<ApiResponse<com.example.gymbackend.payload.dto.MembershipPlanDTO>> createPlan(@RequestBody com.example.gymbackend.payload.dto.MembershipPlanDTO dto) {
         return ResponseEntity.ok(ApiResponse.success(membershipService.createPlan(dto), "Plan created"));
     }
+
+    @PutMapping("/plans/{id}")
+    public ResponseEntity<ApiResponse<com.example.gymbackend.payload.dto.MembershipPlanDTO>> updatePlan(@PathVariable Long id, @RequestBody com.example.gymbackend.payload.dto.MembershipPlanDTO dto) {
+        return ResponseEntity.ok(ApiResponse.success(membershipService.updatePlan(id, dto), "Plan updated"));
+    }
 }

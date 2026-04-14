@@ -8,7 +8,7 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: ${DDL_AUTO:update}
     show-sql: true
     properties:
       hibernate:
@@ -21,3 +21,5 @@ server:
 cors:
   allowed-origins: ${ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173}
 
+cloudinary:
+  url: ${CLOUDINARY_URL:cloudinary://241373855128489:-3GUz1vsWQu-rxIBxreh_5qGCfc@deq0lcxzc}

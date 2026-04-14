@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class MembershipServiceImpl implements MembershipService {
 
     private final MembershipRepository membershipRepository;
-    private final UserRepository userRepository;
+    private final CustomerRepository customerRepository;
     private final BranchRepository branchRepository;
     private final MembershipPlanRepository planRepository;
     private final MembershipTransactionRepository transactionRepository;
@@ -43,20 +43,32 @@ public class MembershipServiceImpl implements MembershipService {
     }
 
     @Override
+    public MembershipPlanDTO updatePlan(Long id, MembershipPlanDTO dto) {
+        MembershipPlan plan = planRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Plan not found"));
+        plan.setName(dto.getName());
+        plan.setDescription(dto.getDescription());
+        plan.setPriceAmount(dto.getPriceAmount());
+        plan.setDurationDays(dto.getDurationDays());
+        plan.setIsPromotion(dto.getIsPromotion());
+        return mapPlanToDTO(planRepository.save(plan));
+    }
+
+    @Override
     @Transactional
     public MembershipDTO createOrRenewMembership(MembershipDTO dto) {
-        User user = userRepository.findByDocumentId(dto.getDocumentId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found with Document ID: " + dto.getDocumentId()));
-        
+        Customer customer = customerRepository.findByDocumentId(dto.getDocumentId())
+                .orElseThrow(() -> new IllegalArgumentException("Customer not found: " + dto.getDocumentId()));
+
         Branch branch = branchRepository.findById(dto.getBranchId())
                 .orElseThrow(() -> new IllegalArgumentException("Branch not found"));
 
         MembershipPlan plan = planRepository.findById(dto.getPlanId())
-                .orElseThrow(() -> new IllegalArgumentException("Membership Plan not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Plan not found"));
 
-        // Disable previous memberships
-        List<Membership> userMemberships = membershipRepository.findByUserId(user.getId());
-        for (Membership m : userMemberships) {
+        // Cancel existing active memberships
+        List<Membership> existing = membershipRepository.findByCustomerId(customer.getId());
+        for (Membership m : existing) {
             if ("ACTIVE".equals(m.getStatus())) {
                 m.setStatus("CANCELLED");
                 membershipRepository.save(m);
@@ -64,17 +76,16 @@ public class MembershipServiceImpl implements MembershipService {
         }
 
         Membership newMembership = new Membership();
-        newMembership.setUser(user);
+        newMembership.setCustomer(customer);
         newMembership.setBranch(branch);
         newMembership.setStartDate(LocalDate.now());
         newMembership.setEndDate(LocalDate.now().plusDays(plan.getDurationDays()));
         newMembership.setStatus("ACTIVE");
-
         Membership saved = membershipRepository.save(newMembership);
 
-        // CREATE IMMUTABLE FINANCIAL TRANSACTION RECORD
+        // Immutable financial transaction record
         MembershipTransaction tx = new MembershipTransaction();
-        tx.setUser(user);
+        tx.setCustomer(customer);
         tx.setBranch(branch);
         tx.setPlan(plan);
         tx.setAmountPaid(plan.getPriceAmount());
@@ -107,16 +118,16 @@ public class MembershipServiceImpl implements MembershipService {
         return (month >= 1 && month <= 12) ? months[month - 1] : "Unknown";
     }
 
-    private MembershipDTO mapToDTO(Membership membership) {
+    private MembershipDTO mapToDTO(Membership m) {
         return MembershipDTO.builder()
-                .id(membership.getId())
-                .userId(membership.getUser().getId())
-                .branchId(membership.getBranch().getId())
-                .startDate(membership.getStartDate())
-                .endDate(membership.getEndDate())
-                .status(membership.getStatus())
-                .userFullName(membership.getUser().getFullName())
-                .documentId(membership.getUser().getDocumentId())
+                .id(m.getId())
+                .customerId(m.getCustomer().getId())
+                .branchId(m.getBranch().getId())
+                .startDate(m.getStartDate())
+                .endDate(m.getEndDate())
+                .status(m.getStatus())
+                .customerFullName(m.getCustomer().getFullName())
+                .documentId(m.getCustomer().getDocumentId())
                 .build();
     }
 

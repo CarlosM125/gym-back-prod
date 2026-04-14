@@ -16,21 +16,36 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final com.example.gymbackend.service.CloudinaryService cloudinaryService;
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<UserDTO>> registerUser(@RequestBody UserDTO userDTO) {
-        UserDTO created = userService.registerUser(userDTO);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(created, "User registered successfully"));
+    @PostMapping("/upload-image")
+    public ResponseEntity<ApiResponse<java.util.Map<String, String>>> uploadImage(
+            @RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
+        try {
+            String url = cloudinaryService.uploadImage(file);
+            java.util.Map<String, String> response = new java.util.HashMap<>();
+            response.put("url", url);
+            return ResponseEntity.ok(ApiResponse.success(response, "Image uploaded successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Image upload failed: " + e.getMessage()));
+        }
     }
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<UserDTO>>> getAllUsers() {
-        return ResponseEntity.ok(ApiResponse.success(userService.getAllUsers(), "Users fetched successfully"));
+        return ResponseEntity.ok(ApiResponse.success(userService.getAllUsers(), "Users fetched"));
     }
 
-    @GetMapping("/document/{docId}")
-    public ResponseEntity<ApiResponse<UserDTO>> getUserByDocument(@PathVariable String docId) {
-        return ResponseEntity.ok(ApiResponse.success(userService.getUserByDocumentId(docId), "User found by Document ID"));
+    @PostMapping
+    public ResponseEntity<ApiResponse<UserDTO>> createUser(@RequestBody UserDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(userService.createUser(dto), "User created"));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.ok(ApiResponse.success(null, "User deleted"));
     }
 }

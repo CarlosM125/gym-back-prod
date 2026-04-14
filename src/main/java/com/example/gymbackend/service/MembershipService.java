@@ -9,6 +9,7 @@ import java.util.Map;
 public interface MembershipService {
     List<MembershipPlanDTO> getAllPlans();
     MembershipPlanDTO createPlan(MembershipPlanDTO planDTO);
+    MembershipPlanDTO updatePlan(Long id, MembershipPlanDTO planDTO);
     MembershipDTO createOrRenewMembership(MembershipDTO membershipDTO);
     List<MembershipDTO> getExpiringToday();
     List<Map<String, Object>> getFinancialStatsByYear(int year);
