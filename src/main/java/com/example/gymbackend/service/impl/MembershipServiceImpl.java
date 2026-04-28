@@ -57,14 +57,31 @@ public class MembershipServiceImpl implements MembershipService {
     @Override
     @Transactional
     public MembershipDTO createOrRenewMembership(MembershipDTO dto) {
-        Customer customer = customerRepository.findByDocumentId(dto.getDocumentId())
-                .orElseThrow(() -> new IllegalArgumentException("Customer not found: " + dto.getDocumentId()));
+        Customer customer = null;
+        
+        if (dto.getDocumentId() != null && !dto.getDocumentId().isEmpty()) {
+            customer = customerRepository.findByDocumentId(dto.getDocumentId()).orElse(null);
+        }
+        
+        if (customer == null) {
+            customer = new Customer();
+            customer.setFullName(dto.getCustomerFullName() != null && !dto.getCustomerFullName().isEmpty() ? dto.getCustomerFullName() : "Cliente Anónimo");
+            customer.setDocumentId(dto.getDocumentId() != null && !dto.getDocumentId().isEmpty() ? dto.getDocumentId() : null);
+            customer = customerRepository.save(customer);
+        }
 
-        Branch branch = branchRepository.findById(dto.getBranchId())
-                .orElseThrow(() -> new IllegalArgumentException("Branch not found"));
+        Branch branch = null;
+        if (dto.getBranchId() != null) {
+            branch = branchRepository.findById(dto.getBranchId()).orElse(null);
+        }
 
-        MembershipPlan plan = planRepository.findById(dto.getPlanId())
-                .orElseThrow(() -> new IllegalArgumentException("Plan not found"));
+        MembershipPlan plan = null;
+        if (dto.getPlanId() != null) {
+            plan = planRepository.findById(dto.getPlanId()).orElse(null);
+        }
+        
+        LocalDate txDate = dto.getStartDate() != null ? dto.getStartDate() : LocalDate.now();
+        int durationDays = (plan != null && plan.getDurationDays() != null) ? plan.getDurationDays() : 30;
 
         // Cancel existing active memberships
         List<Membership> existing = membershipRepository.findByCustomerId(customer.getId());
@@ -78,8 +95,8 @@ public class MembershipServiceImpl implements MembershipService {
         Membership newMembership = new Membership();
         newMembership.setCustomer(customer);
         newMembership.setBranch(branch);
-        newMembership.setStartDate(LocalDate.now());
-        newMembership.setEndDate(LocalDate.now().plusDays(plan.getDurationDays()));
+        newMembership.setStartDate(txDate);
+        newMembership.setEndDate(txDate.plusDays(durationDays));
         newMembership.setStatus("ACTIVE");
         Membership saved = membershipRepository.save(newMembership);
 
@@ -88,8 +105,8 @@ public class MembershipServiceImpl implements MembershipService {
         tx.setCustomer(customer);
         tx.setBranch(branch);
         tx.setPlan(plan);
-        tx.setAmountPaid(plan.getPriceAmount());
-        tx.setTransactionDate(LocalDateTime.now());
+        tx.setAmountPaid(dto.getAmountPaid() != null ? dto.getAmountPaid() : (plan != null ? plan.getPriceAmount() : 0.0));
+        tx.setTransactionDate(txDate.atStartOfDay());
         transactionRepository.save(tx);
 
         return mapToDTO(saved);
