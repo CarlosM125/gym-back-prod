@@ -120,9 +120,7 @@ public class CustomerServiceImpl implements CustomerService {
                     builder.currentStartDate(activeMem.getStartDate());
                     builder.currentEndDate(activeMem.getEndDate());
                     
-                    if (activeMem.getPlan() != null) {
-                        builder.currentPlanName(activeMem.getPlan().getName());
-                    }
+                    builder.currentPlanName("Plan Base");
                     
                     if (isExpired) {
                         builder.membershipStatus("EXPIRED");

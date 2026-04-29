@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @Builder
@@ -21,4 +22,10 @@ public class CustomerDTO {
     private LocalDateTime createdAt;
     // Optional: for registering with initial plan
     private Long initialPlanId;
+
+    // Membership summary for lists
+    private String currentPlanName;
+    private LocalDate currentStartDate;
+    private LocalDate currentEndDate;
+    private String membershipStatus;
 }
