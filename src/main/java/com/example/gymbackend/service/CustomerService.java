@@ -8,4 +8,5 @@ public interface CustomerService {
     CustomerDTO registerCustomer(CustomerDTO dto);
     List<CustomerDTO> getAllCustomers();
     CustomerDTO getCustomerByDocumentId(String documentId);
+    CustomerDTO updateCustomer(Long id, CustomerDTO dto);
 }

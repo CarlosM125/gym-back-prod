@@ -59,7 +59,11 @@ public class MembershipServiceImpl implements MembershipService {
     public MembershipDTO createOrRenewMembership(MembershipDTO dto) {
         Customer customer = null;
         
-        if (dto.getDocumentId() != null && !dto.getDocumentId().isEmpty()) {
+        if (dto.getCustomerId() != null) {
+            customer = customerRepository.findById(dto.getCustomerId()).orElse(null);
+        }
+        
+        if (customer == null && dto.getDocumentId() != null && !dto.getDocumentId().isEmpty()) {
             customer = customerRepository.findByDocumentId(dto.getDocumentId()).orElse(null);
         }
         
@@ -138,13 +142,13 @@ public class MembershipServiceImpl implements MembershipService {
     private MembershipDTO mapToDTO(Membership m) {
         return MembershipDTO.builder()
                 .id(m.getId())
-                .customerId(m.getCustomer().getId())
-                .branchId(m.getBranch().getId())
+                .customerId(m.getCustomer() != null ? m.getCustomer().getId() : null)
+                .branchId(m.getBranch() != null ? m.getBranch().getId() : null)
                 .startDate(m.getStartDate())
                 .endDate(m.getEndDate())
                 .status(m.getStatus())
-                .customerFullName(m.getCustomer().getFullName())
-                .documentId(m.getCustomer().getDocumentId())
+                .customerFullName(m.getCustomer() != null ? m.getCustomer().getFullName() : null)
+                .documentId(m.getCustomer() != null ? m.getCustomer().getDocumentId() : null)
                 .build();
     }
 

@@ -33,4 +33,10 @@ public class CustomerController {
         return ResponseEntity.ok(ApiResponse.success(
                 customerService.getCustomerByDocumentId(documentId), "Customer found"));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<CustomerDTO>> updateCustomer(@PathVariable Long id, @RequestBody CustomerDTO dto) {
+        return ResponseEntity.ok(ApiResponse.success(
+                customerService.updateCustomer(id, dto), "Customer updated successfully"));
+    }
 }
