@@ -123,9 +123,9 @@ public class MembershipServiceImpl implements MembershipService {
     }
 
     @Override
-    public List<MembershipDTO> getExpiringInDays(int days) {
-        LocalDate from = LocalDate.now();
-        LocalDate to = LocalDate.now().plusDays(days - 1);
+    public List<MembershipDTO> getExpiringInRange(int pastDays, int futureDays) {
+        LocalDate from = LocalDate.now().minusDays(pastDays);
+        LocalDate to   = LocalDate.now().plusDays(futureDays);
         return membershipRepository.findMembershipsExpiringBetween(from, to)
                 .stream().map(this::mapToDTO).collect(Collectors.toList());
     }

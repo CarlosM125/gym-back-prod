@@ -31,8 +31,11 @@ public class MembershipController {
     }
 
     @GetMapping("/expiring")
-    public ResponseEntity<ApiResponse<List<MembershipDTO>>> getExpiring(@RequestParam(defaultValue = "1") int days) {
-        return ResponseEntity.ok(ApiResponse.success(membershipService.getExpiringInDays(days), "Expiring memberships fetched"));
+    public ResponseEntity<ApiResponse<List<MembershipDTO>>> getExpiring(
+            @RequestParam(defaultValue = "0") int pastDays,
+            @RequestParam(defaultValue = "0") int futureDays) {
+        return ResponseEntity.ok(ApiResponse.success(
+                membershipService.getExpiringInRange(pastDays, futureDays), "Expiring memberships fetched"));
     }
 
     @GetMapping("/historical-stats")
