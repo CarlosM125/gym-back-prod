@@ -82,6 +82,9 @@ public class CustomerServiceImpl implements CustomerService {
         if (dto.getEmail() != null) {
             customer.setEmail(dto.getEmail());
         }
+        if (dto.getProfileImageUrl() != null) {
+            customer.setProfileImageUrl(dto.getProfileImageUrl());
+        }
         
         return mapToDTO(customerRepository.save(customer));
     }
