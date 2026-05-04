@@ -4,10 +4,12 @@ import com.example.gymbackend.payload.dto.MembershipDTO;
 import com.example.gymbackend.payload.response.ApiResponse;
 import com.example.gymbackend.service.MembershipService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -32,10 +34,10 @@ public class MembershipController {
 
     @GetMapping("/expiring")
     public ResponseEntity<ApiResponse<List<MembershipDTO>>> getExpiring(
-            @RequestParam(defaultValue = "0") int pastDays,
-            @RequestParam(defaultValue = "0") int futureDays) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
         return ResponseEntity.ok(ApiResponse.success(
-                membershipService.getExpiringInRange(pastDays, futureDays), "Expiring memberships fetched"));
+                membershipService.getExpiringBetween(fromDate, toDate), "Expiring memberships fetched"));
     }
 
     @GetMapping("/historical-stats")

@@ -12,6 +12,6 @@ public interface MembershipService {
     MembershipPlanDTO updatePlan(Long id, MembershipPlanDTO planDTO);
     MembershipDTO createOrRenewMembership(MembershipDTO membershipDTO);
     List<MembershipDTO> getExpiringToday();
-    List<MembershipDTO> getExpiringInRange(int pastDays, int futureDays);
+    List<MembershipDTO> getExpiringBetween(java.time.LocalDate from, java.time.LocalDate to);
     List<Map<String, Object>> getFinancialStatsByYear(int year);
 }
