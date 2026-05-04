@@ -30,6 +30,11 @@ public class MembershipController {
         return ResponseEntity.ok(ApiResponse.success(membershipService.getExpiringToday(), "Expiring memberships fetched successfully"));
     }
 
+    @GetMapping("/expiring")
+    public ResponseEntity<ApiResponse<List<MembershipDTO>>> getExpiring(@RequestParam(defaultValue = "1") int days) {
+        return ResponseEntity.ok(ApiResponse.success(membershipService.getExpiringInDays(days), "Expiring memberships fetched"));
+    }
+
     @GetMapping("/historical-stats")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getHistoricalStats(@RequestParam(defaultValue = "2026") int year) {
         return ResponseEntity.ok(ApiResponse.success(membershipService.getFinancialStatsByYear(year), "Historical statistics loaded"));

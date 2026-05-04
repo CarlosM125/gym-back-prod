@@ -15,6 +15,9 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
     @Query("SELECT m FROM Membership m WHERE m.endDate = :today AND m.status = 'ACTIVE'")
     List<Membership> findMembershipsExpiringToday(@Param("today") LocalDate today);
 
+    @Query("SELECT m FROM Membership m WHERE m.endDate BETWEEN :fromDate AND :toDate AND m.status = 'ACTIVE' ORDER BY m.endDate ASC")
+    List<Membership> findMembershipsExpiringBetween(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
+
     @Query(value = "SELECT EXTRACT(MONTH FROM start_date) as month, COUNT(*) as signups " +
             "FROM memberships " +
             "WHERE EXTRACT(YEAR FROM start_date) = :year " +

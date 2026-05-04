@@ -123,6 +123,14 @@ public class MembershipServiceImpl implements MembershipService {
     }
 
     @Override
+    public List<MembershipDTO> getExpiringInDays(int days) {
+        LocalDate from = LocalDate.now();
+        LocalDate to = LocalDate.now().plusDays(days - 1);
+        return membershipRepository.findMembershipsExpiringBetween(from, to)
+                .stream().map(this::mapToDTO).collect(Collectors.toList());
+    }
+
+    @Override
     public List<Map<String, Object>> getFinancialStatsByYear(int year) {
         List<Object[]> rawData = transactionRepository.findFinancialStatsByYear(year);
         return rawData.stream().map(row -> {
@@ -149,6 +157,7 @@ public class MembershipServiceImpl implements MembershipService {
                 .status(m.getStatus())
                 .customerFullName(m.getCustomer() != null ? m.getCustomer().getFullName() : null)
                 .documentId(m.getCustomer() != null ? m.getCustomer().getDocumentId() : null)
+                .profileImageUrl(m.getCustomer() != null ? m.getCustomer().getProfileImageUrl() : null)
                 .build();
     }
 
