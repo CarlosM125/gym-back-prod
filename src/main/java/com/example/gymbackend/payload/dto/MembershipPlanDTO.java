@@ -14,6 +14,6 @@ public class MembershipPlanDTO {
     private String name;
     private String description;
     private Double priceAmount;
-    private Integer durationDays;
+    private Integer durationMonths;
     private Boolean isPromotion;
 }

@@ -37,7 +37,7 @@ public class MembershipServiceImpl implements MembershipService {
         plan.setName(dto.getName());
         plan.setDescription(dto.getDescription());
         plan.setPriceAmount(dto.getPriceAmount());
-        plan.setDurationDays(dto.getDurationDays());
+        plan.setDurationMonths(dto.getDurationMonths());
         plan.setIsPromotion(dto.getIsPromotion());
         return mapPlanToDTO(planRepository.save(plan));
     }
@@ -49,7 +49,7 @@ public class MembershipServiceImpl implements MembershipService {
         plan.setName(dto.getName());
         plan.setDescription(dto.getDescription());
         plan.setPriceAmount(dto.getPriceAmount());
-        plan.setDurationDays(dto.getDurationDays());
+        plan.setDurationMonths(dto.getDurationMonths());
         plan.setIsPromotion(dto.getIsPromotion());
         return mapPlanToDTO(planRepository.save(plan));
     }
@@ -85,7 +85,7 @@ public class MembershipServiceImpl implements MembershipService {
         }
         
         LocalDate txDate = dto.getStartDate() != null ? dto.getStartDate() : LocalDate.now();
-        int durationDays = (plan != null && plan.getDurationDays() != null) ? plan.getDurationDays() : 30;
+        int durationMonths = (plan != null && plan.getDurationMonths() != null) ? plan.getDurationMonths() : 1;
 
         // Cancel existing active memberships
         List<Membership> existing = membershipRepository.findByCustomerId(customer.getId());
@@ -100,7 +100,7 @@ public class MembershipServiceImpl implements MembershipService {
         newMembership.setCustomer(customer);
         newMembership.setBranch(branch);
         newMembership.setStartDate(txDate);
-        newMembership.setEndDate(txDate.plusDays(durationDays));
+        newMembership.setEndDate(txDate.plusMonths(durationMonths));
         newMembership.setStatus("ACTIVE");
         Membership saved = membershipRepository.save(newMembership);
 
@@ -114,6 +114,31 @@ public class MembershipServiceImpl implements MembershipService {
         transactionRepository.save(tx);
 
         return mapToDTO(saved);
+    }
+
+    @Override
+    @Transactional
+    public MembershipDTO updateActiveMembershipStartDate(Long customerId, LocalDate newStartDate) {
+        // Find the active membership for this customer
+        Membership activeMembership = membershipRepository.findByCustomerId(customerId).stream()
+                .filter(m -> "ACTIVE".equals(m.getStatus()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No active membership found for customer"));
+
+        // Find the plan from the transaction to know durationMonths
+        // Since Membership entity doesn't store duration directly, we check the latest transaction
+        MembershipTransaction tx = transactionRepository.findByCustomerId(customerId).stream()
+                .max((t1, t2) -> t1.getTransactionDate().compareTo(t2.getTransactionDate()))
+                .orElse(null);
+
+        int durationMonths = (tx != null && tx.getPlan() != null && tx.getPlan().getDurationMonths() != null) 
+                             ? tx.getPlan().getDurationMonths() 
+                             : 1;
+
+        activeMembership.setStartDate(newStartDate);
+        activeMembership.setEndDate(newStartDate.plusMonths(durationMonths));
+
+        return mapToDTO(membershipRepository.save(activeMembership));
     }
 
     @Override
@@ -165,7 +190,7 @@ public class MembershipServiceImpl implements MembershipService {
                 .name(plan.getName())
                 .description(plan.getDescription())
                 .priceAmount(plan.getPriceAmount())
-                .durationDays(plan.getDurationDays())
+                .durationMonths(plan.getDurationMonths())
                 .isPromotion(plan.getIsPromotion())
                 .build();
     }

@@ -8,6 +8,11 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider")
 public class GymBackendApplication {
 
+    @jakarta.annotation.PostConstruct
+    public void init() {
+        java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("America/Guayaquil"));
+    }
+
     public static void main(String[] args) {
         SpringApplication.run(GymBackendApplication.class, args);
     }

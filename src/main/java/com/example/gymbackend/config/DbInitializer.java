@@ -65,24 +65,24 @@ public class DbInitializer implements CommandLineRunner {
         // Seed membership plans
         if (planRepository.count() == 0) {
             MembershipPlan p1 = new MembershipPlan();
-            p1.setName("Día Suelto");
-            p1.setDescription("Pase diario para visitantes.");
-            p1.setDurationDays(1);
-            p1.setPriceAmount(5.0);
+            p1.setName("Membresía Mensual");
+            p1.setDescription("Pase estándar de 1 mes.");
+            p1.setDurationMonths(1);
+            p1.setPriceAmount(35.0);
             p1.setIsPromotion(false);
 
             MembershipPlan p2 = new MembershipPlan();
-            p2.setName("Mensualidad Básica");
-            p2.setDescription("Pase estándar de 30 días.");
-            p2.setDurationDays(30);
-            p2.setPriceAmount(35.0);
+            p2.setName("Trimestral Básica");
+            p2.setDescription("Pase estándar de 3 meses.");
+            p2.setDurationMonths(3);
+            p2.setPriceAmount(90.0);
             p2.setIsPromotion(false);
 
             MembershipPlan p3 = new MembershipPlan();
-            p3.setName("Trimestral VIP");
-            p3.setDescription("Promo de 90 días con descuento.");
-            p3.setDurationDays(90);
-            p3.setPriceAmount(80.0);
+            p3.setName("Semestral VIP");
+            p3.setDescription("Promo de 6 meses con descuento.");
+            p3.setDurationMonths(6);
+            p3.setPriceAmount(160.0);
             p3.setIsPromotion(true);
 
             planRepository.saveAll(Arrays.asList(p1, p2, p3));

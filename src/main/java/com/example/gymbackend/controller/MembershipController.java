@@ -24,7 +24,18 @@ public class MembershipController {
     public ResponseEntity<ApiResponse<MembershipDTO>> renewMembership(@RequestBody MembershipDTO dto) {
         MembershipDTO saved = membershipService.createOrRenewMembership(dto);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(saved, "Membership successfully renewed for 30 days"));
+                .body(ApiResponse.success(saved, "Membership successfully renewed"));
+    }
+
+    @PutMapping("/customer/{id}/start-date")
+    public ResponseEntity<ApiResponse<MembershipDTO>> updateActiveMembershipStartDate(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> payload) {
+        LocalDate newStartDate = LocalDate.parse(payload.get("startDate"));
+        return ResponseEntity.ok(ApiResponse.success(
+                membershipService.updateActiveMembershipStartDate(id, newStartDate), 
+                "Membership start date updated"
+        ));
     }
 
     @GetMapping("/expiring-today")

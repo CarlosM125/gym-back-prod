@@ -17,4 +17,6 @@ public interface MembershipTransactionRepository extends JpaRepository<Membershi
             "GROUP BY EXTRACT(MONTH FROM transaction_date) " +
             "ORDER BY month ASC", nativeQuery = true)
     List<Object[]> findFinancialStatsByYear(@Param("year") int year);
+
+    List<MembershipTransaction> findByCustomerId(Long customerId);
 }

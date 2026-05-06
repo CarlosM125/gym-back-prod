@@ -23,8 +23,8 @@ public class MembershipPlan extends BaseEntity {
     @Column(nullable = false)
     private Double priceAmount;
 
-    @Column(nullable = false)
-    private Integer durationDays;
+    @Column(name = "duration_months")
+    private Integer durationMonths;
 
     @Column(name = "is_promotion")
     private Boolean isPromotion;

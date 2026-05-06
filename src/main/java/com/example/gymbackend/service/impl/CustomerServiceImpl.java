@@ -6,6 +6,7 @@ import com.example.gymbackend.payload.dto.CustomerDTO;
 import com.example.gymbackend.repository.BranchRepository;
 import com.example.gymbackend.repository.CustomerRepository;
 import com.example.gymbackend.repository.MembershipRepository;
+import com.example.gymbackend.service.CloudinaryService;
 import com.example.gymbackend.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
     private final BranchRepository branchRepository;
     private final MembershipRepository membershipRepository;
+    private final CloudinaryService cloudinaryService;
 
     @Override
     public CustomerDTO registerCustomer(CustomerDTO dto) {
@@ -82,7 +84,11 @@ public class CustomerServiceImpl implements CustomerService {
         if (dto.getEmail() != null) {
             customer.setEmail(dto.getEmail());
         }
-        if (dto.getProfileImageUrl() != null) {
+        if (dto.getProfileImageUrl() != null && !dto.getProfileImageUrl().isEmpty() && !dto.getProfileImageUrl().equals(customer.getProfileImageUrl())) {
+            // Delete old image if it exists
+            if (customer.getProfileImageUrl() != null && customer.getProfileImageUrl().contains("cloudinary.com")) {
+                cloudinaryService.deleteImage(customer.getProfileImageUrl());
+            }
             customer.setProfileImageUrl(dto.getProfileImageUrl());
         }
         
