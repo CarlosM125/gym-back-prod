@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,6 +39,7 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setPhone(dto.getPhone());
         customer.setProfileImageUrl(dto.getProfileImageUrl());
         customer.setStatus("ACTIVE");
+        customer.setConsentGiven(dto.getConsentGiven() != null ? dto.getConsentGiven() : false);
 
         if (dto.getPinZkteco() == null) {
             customer.setPinZkteco(generateUniquePin());
@@ -56,7 +58,10 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public List<CustomerDTO> getAllCustomers() {
-        return customerRepository.findAll().stream().map(this::mapToDTO).collect(Collectors.toList());
+        return customerRepository.findAll().stream()
+                .filter(c -> !"DELETED".equals(c.getStatus()))
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -95,6 +100,25 @@ public class CustomerServiceImpl implements CustomerService {
         return mapToDTO(customerRepository.save(customer));
     }
 
+    @Override
+    public void deleteCustomer(Long id) {
+        Customer customer = customerRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Customer not found: " + id));
+
+        customer.setStatus("DELETED");
+        customer.setFullName("Usuario Eliminado");
+        customer.setDocumentId(UUID.randomUUID().toString()); // Liberar cédula original
+        customer.setEmail(null);
+        customer.setPhone(null);
+        
+        if (customer.getProfileImageUrl() != null && customer.getProfileImageUrl().contains("cloudinary.com")) {
+            cloudinaryService.deleteImage(customer.getProfileImageUrl());
+        }
+        customer.setProfileImageUrl(null);
+        
+        customerRepository.save(customer);
+    }
+
     private Integer generateUniquePin() {
         Random random = new Random();
         int pin;
@@ -114,6 +138,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .pinZkteco(c.getPinZkteco())
                 .profileImageUrl(c.getProfileImageUrl())
                 .status(c.getStatus())
+                .consentGiven(c.getConsentGiven())
                 .homeBranchId(c.getHomeBranch() != null ? c.getHomeBranch().getId() : null)
                 .homeBranchName(c.getHomeBranch() != null ? c.getHomeBranch().getName() : null)
                 .createdAt(c.getCreatedAt());

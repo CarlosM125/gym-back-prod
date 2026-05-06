@@ -42,4 +42,7 @@ public class Customer extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "home_branch_id")
     private Branch homeBranch;
+
+    @Column(name = "consent_given")
+    private Boolean consentGiven = false;
 }

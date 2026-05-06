@@ -9,4 +9,5 @@ public interface CustomerService {
     List<CustomerDTO> getAllCustomers();
     CustomerDTO getCustomerByDocumentId(String documentId);
     CustomerDTO updateCustomer(Long id, CustomerDTO dto);
+    void deleteCustomer(Long id);
 }

@@ -23,4 +23,5 @@ public class MembershipDTO {
     private String customerFullName;  // renamed from userFullName
     private String documentId;
     private String profileImageUrl;
+    private Boolean consentGiven;
 }

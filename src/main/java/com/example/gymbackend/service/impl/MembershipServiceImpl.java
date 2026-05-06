@@ -71,6 +71,7 @@ public class MembershipServiceImpl implements MembershipService {
             customer = new Customer();
             customer.setFullName(dto.getCustomerFullName() != null && !dto.getCustomerFullName().isEmpty() ? dto.getCustomerFullName() : "Cliente Anónimo");
             customer.setDocumentId(dto.getDocumentId() != null && !dto.getDocumentId().isEmpty() ? dto.getDocumentId() : null);
+            customer.setConsentGiven(dto.getConsentGiven() != null ? dto.getConsentGiven() : false);
             customer = customerRepository.save(customer);
         }
 

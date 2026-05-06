@@ -22,6 +22,8 @@ public class CustomerDTO {
     private LocalDateTime createdAt;
     // Optional: for registering with initial plan
     private Long initialPlanId;
+    
+    private Boolean consentGiven;
 
     // Membership summary for lists
     private String currentPlanName;
