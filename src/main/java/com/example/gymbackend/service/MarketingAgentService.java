@@ -42,18 +42,7 @@ public class MarketingAgentService {
     private static final String GEMINI_URL =
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=";
 
-    // ─── Scheduler: runs every day at 6:00 AM Ecuador time ──────────────────
-    @Scheduled(cron = "0 0 6 * * *", zone = "America/Guayaquil")
-    public void scheduledDailyAnalysis() {
-        log.info("🤖 Iniciando análisis diario de marketing con Gemini...");
-        try {
-            runDailyAnalysis();
-        } catch (Exception e) {
-            log.error("Error en análisis diario de marketing: {}", e.getMessage());
-        }
-    }
-
-    // ─── Manual trigger (also called from controller) ────────────────────────
+    // ─── Manual trigger only (called from MarketingController) ──────────────
     public String runDailyAnalysis() {
         if (geminiApiKey == null || geminiApiKey.isBlank()) {
             return "❌ GEMINI_API_KEY no configurada. Agrega la variable de entorno en el servidor.";
