@@ -22,6 +22,7 @@ F:\Gym\gym-backend\src\main\java\com\example\gymbackend\model\MembershipPlan.jav
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\security\JwtAuthenticationFilter.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\service\UserService.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\model\SystemAuditLog.java
+F:\Gym\gym-backend\src\main\java\com\example\gymbackend\repository\MarketingProposalRepository.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\config\DbInitializer.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\service\BranchService.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\model\Membership.java
@@ -34,7 +35,9 @@ F:\Gym\gym-backend\src\main\java\com\example\gymbackend\repository\CustomerRepos
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\security\JwtUtil.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\controller\CustomerController.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\service\impl\CustomerServiceImpl.java
+F:\Gym\gym-backend\src\main\java\com\example\gymbackend\service\MarketingAgentService.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\config\WebConfig.java
+F:\Gym\gym-backend\src\main\java\com\example\gymbackend\controller\MarketingController.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\service\impl\MembershipServiceImpl.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\model\Customer.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\service\impl\BranchServiceImpl.java
@@ -42,3 +45,4 @@ F:\Gym\gym-backend\src\main\java\com\example\gymbackend\payload\dto\CustomerDTO.
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\payload\dto\UserDTO.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\controller\AuthController.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\config\AuditConfig.java
+F:\Gym\gym-backend\src\main\java\com\example\gymbackend\model\MarketingProposal.java

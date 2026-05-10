@@ -23,3 +23,6 @@ cors:
 
 cloudinary:
   url: ${CLOUDINARY_URL:cloudinary://241373855128489:-3GUz1vsWQu-rxIBxreh_5qGCfc@deq0lcxzc}
+
+gemini:
+  api-key: ${GEMINI_API_KEY:}
