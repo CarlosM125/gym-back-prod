@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
@@ -55,7 +56,7 @@ public class MarketingAgentService {
     // ─── Manual trigger (also called from controller) ────────────────────────
     public String runDailyAnalysis() {
         if (geminiApiKey == null || geminiApiKey.isBlank()) {
-            return "GEMINI_API_KEY no configurada. Agrega la variable de entorno en el servidor.";
+            return "❌ GEMINI_API_KEY no configurada. Agrega la variable de entorno en el servidor.";
         }
 
         // 1. Recopilar datos reales del ERP
@@ -116,7 +117,7 @@ public class MarketingAgentService {
         // 3. Llamar a la API de Gemini
         String geminiResponse = callGemini(prompt);
         if (geminiResponse == null) {
-            return "Error al contactar la API de Gemini.";
+            return lastGeminiError != null ? lastGeminiError : "Error al contactar la API de Gemini.";
         }
 
         // 4. Parsear y guardar propuestas
@@ -159,13 +160,15 @@ public class MarketingAgentService {
     }
 
     // ─── Llamada HTTP a Gemini 2.0 Flash ─────────────────────────────────────
+    private String lastGeminiError = null;
+
     private String callGemini(String prompt) {
+        lastGeminiError = null;
         try {
             RestTemplate restTemplate = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
 
-            // Cuerpo de la petición
             String body = String.format("""
                     {
                       "contents": [{"parts": [{"text": %s}]}],
@@ -177,20 +180,21 @@ public class MarketingAgentService {
             ResponseEntity<String> response = restTemplate.postForEntity(
                     GEMINI_URL + geminiApiKey, request, String.class);
 
-            if (!response.getStatusCode().is2xxSuccessful()) {
-                log.error("Gemini respondió con error: {}", response.getStatusCode());
-                return null;
-            }
-
-            // Extraer el texto de la respuesta
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(response.getBody());
             return root.path("candidates").get(0)
                        .path("content").path("parts").get(0)
                        .path("text").asText();
 
+        } catch (HttpClientErrorException e) {
+            // Google nos dice exactamente qué está mal (ej: clave inválida)
+            String detail = e.getResponseBodyAsString();
+            log.error("Error HTTP desde Gemini [{}]: {}", e.getStatusCode(), detail);
+            lastGeminiError = "Error Gemini [" + e.getStatusCode() + "]: " + detail;
+            return null;
         } catch (Exception e) {
             log.error("Error llamando a Gemini: {}", e.getMessage());
+            lastGeminiError = "Error de red: " + e.getMessage();
             return null;
         }
     }
