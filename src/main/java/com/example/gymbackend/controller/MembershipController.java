@@ -56,6 +56,11 @@ public class MembershipController {
         return ResponseEntity.ok(ApiResponse.success(membershipService.getFinancialStatsByYear(year), "Historical statistics loaded"));
     }
 
+    @GetMapping("/dashboard-stats")
+    public ResponseEntity<ApiResponse<com.example.gymbackend.payload.dto.DashboardStatsDTO>> getDashboardStats() {
+        return ResponseEntity.ok(ApiResponse.success(membershipService.getDashboardStats(), "Dashboard statistics loaded"));
+    }
+
     @GetMapping("/plans")
     public ResponseEntity<ApiResponse<List<com.example.gymbackend.payload.dto.MembershipPlanDTO>>> getPlans() {
         return ResponseEntity.ok(ApiResponse.success(membershipService.getAllPlans(), "Plans loaded"));

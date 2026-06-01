@@ -19,4 +19,11 @@ public interface MembershipTransactionRepository extends JpaRepository<Membershi
     List<Object[]> findFinancialStatsByYear(@Param("year") int year);
 
     List<MembershipTransaction> findByCustomerId(Long customerId);
+
+    @Query(value = "SELECT p.name as planName, COUNT(DISTINCT t.customer_id) as clients, SUM(t.amount_paid) as revenue " +
+            "FROM membership_transactions t " +
+            "JOIN membership_plans p ON t.plan_id = p.id " +
+            "GROUP BY p.name " +
+            "ORDER BY revenue DESC", nativeQuery = true)
+    List<Object[]> findRevenueByPlan();
 }

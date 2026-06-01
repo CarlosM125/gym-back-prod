@@ -166,6 +166,55 @@ public class MembershipServiceImpl implements MembershipService {
         }).collect(Collectors.toList());
     }
 
+    @Override
+    public com.example.gymbackend.payload.dto.DashboardStatsDTO getDashboardStats() {
+        LocalDate today = LocalDate.now();
+        
+        long activeCustomers = membershipRepository.findAll().stream()
+                .filter(m -> "ACTIVE".equals(m.getStatus()) && m.getEndDate() != null && !m.getEndDate().isBefore(today))
+                .map(m -> m.getCustomer().getId())
+                .distinct()
+                .count();
+
+        List<Object[]> revenueByPlanRaw = transactionRepository.findRevenueByPlan();
+        
+        double totalRevenue = 0;
+        for (Object[] row : revenueByPlanRaw) {
+            totalRevenue += ((Number) row[2]).doubleValue();
+        }
+        
+        final double finalTotal = totalRevenue;
+        List<com.example.gymbackend.payload.dto.PlanDistributionDTO> planDistribution = revenueByPlanRaw.stream().map(row -> {
+            String name = (String) row[0];
+            int clients = ((Number) row[1]).intValue();
+            double revenue = ((Number) row[2]).doubleValue();
+            // Evitar Locale ES problemas con comas
+            String percentage = finalTotal > 0 ? String.format(java.util.Locale.US, "%.1f%%", (revenue / finalTotal) * 100) : "0.0%";
+            return new com.example.gymbackend.payload.dto.PlanDistributionDTO(name, clients, revenue, percentage);
+        }).collect(Collectors.toList());
+        
+        int currentYear = today.getYear();
+        List<Object[]> financialStats = transactionRepository.findFinancialStatsByYear(currentYear);
+        double monthlyRevenue = 0;
+        int currentMonth = today.getMonthValue();
+        for (Object[] row : financialStats) {
+            if (((Number) row[0]).intValue() == currentMonth) {
+                monthlyRevenue = ((Number) row[1]).doubleValue();
+            }
+        }
+        
+        long totalUniqueCustomers = customerRepository.count();
+        double averagePerCustomer = totalUniqueCustomers > 0 ? totalRevenue / totalUniqueCustomers : 0;
+        
+        return com.example.gymbackend.payload.dto.DashboardStatsDTO.builder()
+                .activeCustomers(activeCustomers)
+                .totalRevenue(totalRevenue)
+                .averageRevenuePerCustomer(averagePerCustomer)
+                .monthlyRevenue(monthlyRevenue)
+                .planDistribution(planDistribution)
+                .build();
+    }
+
     private String mapMonthName(int month) {
         String[] months = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
         return (month >= 1 && month <= 12) ? months[month - 1] : "Unknown";
