@@ -15,5 +15,10 @@ public interface MembershipService {
     List<MembershipDTO> getExpiringToday();
     List<MembershipDTO> getExpiringBetween(java.time.LocalDate from, java.time.LocalDate to);
     List<Map<String, Object>> getFinancialStatsByYear(int year);
-    com.example.gymbackend.payload.dto.DashboardStatsDTO getDashboardStats();
+    com.example.gymbackend.payload.dto.DashboardStatsDTO getDashboardStats(
+            java.time.LocalDate startDate,
+            java.time.LocalDate endDate,
+            Long branchId,
+            Long planId,
+            String status);
 }

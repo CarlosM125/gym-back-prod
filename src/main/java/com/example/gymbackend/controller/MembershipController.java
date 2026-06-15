@@ -57,8 +57,15 @@ public class MembershipController {
     }
 
     @GetMapping("/dashboard-stats")
-    public ResponseEntity<ApiResponse<com.example.gymbackend.payload.dto.DashboardStatsDTO>> getDashboardStats() {
-        return ResponseEntity.ok(ApiResponse.success(membershipService.getDashboardStats(), "Dashboard statistics loaded"));
+    public ResponseEntity<ApiResponse<com.example.gymbackend.payload.dto.DashboardStatsDTO>> getDashboardStats(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) Long branchId,
+            @RequestParam(required = false) Long planId,
+            @RequestParam(required = false) String status) {
+        return ResponseEntity.ok(ApiResponse.success(
+                membershipService.getDashboardStats(startDate, endDate, branchId, planId, status), 
+                "Dashboard statistics loaded"));
     }
 
     @GetMapping("/plans")

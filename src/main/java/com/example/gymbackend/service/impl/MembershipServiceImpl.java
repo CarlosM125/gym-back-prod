@@ -167,43 +167,129 @@ public class MembershipServiceImpl implements MembershipService {
     }
 
     @Override
-    public com.example.gymbackend.payload.dto.DashboardStatsDTO getDashboardStats() {
+    public com.example.gymbackend.payload.dto.DashboardStatsDTO getDashboardStats(
+            LocalDate startDate,
+            LocalDate endDate,
+            Long branchId,
+            Long planId,
+            String status) {
+        
         LocalDate today = LocalDate.now();
         
+        // Filtrado de clientes activos
         long activeCustomers = membershipRepository.findAll().stream()
-                .filter(m -> "ACTIVE".equals(m.getStatus()) && m.getEndDate() != null && !m.getEndDate().isBefore(today))
+                .filter(m -> {
+                    boolean match = true;
+                    if (status != null && !status.isEmpty()) {
+                        match = match && status.equalsIgnoreCase(m.getStatus());
+                    } else {
+                        // Si no hay filtro de estado, contamos los activos por defecto o todos? 
+                        // El dashboard pide "Membresías Activas". Si no hay filtro, asumimos activas.
+                        match = match && "ACTIVE".equalsIgnoreCase(m.getStatus()) && m.getEndDate() != null && !m.getEndDate().isBefore(today);
+                    }
+                    if (branchId != null) {
+                        match = match && m.getBranch() != null && m.getBranch().getId().equals(branchId);
+                    }
+                    // Plan ID filter directly on membership? Membership has no plan directly, wait, membership doesn't have a plan. 
+                    // Let's check Membership model... yes it doesn't have plan_id, only Transactions do. Or does it?
+                    // Let's ignore planId for activeCustomers if Membership doesn't have it, or assume activeCustomers is global if planId is selected.
+                    return match;
+                })
                 .map(m -> m.getCustomer().getId())
                 .distinct()
                 .count();
 
-        List<Object[]> revenueByPlanRaw = transactionRepository.findRevenueByPlan();
+        // Filtrado de transacciones
+        List<MembershipTransaction> allTransactions = transactionRepository.findAll();
+        List<MembershipTransaction> filteredTransactions = allTransactions.stream()
+                .filter(t -> {
+                    boolean match = true;
+                    if (branchId != null) {
+                        match = match && t.getBranch() != null && t.getBranch().getId().equals(branchId);
+                    }
+                    if (planId != null) {
+                        match = match && t.getPlan() != null && t.getPlan().getId().equals(planId);
+                    }
+                    if (startDate != null) {
+                        match = match && !t.getTransactionDate().toLocalDate().isBefore(startDate);
+                    }
+                    if (endDate != null) {
+                        match = match && !t.getTransactionDate().toLocalDate().isAfter(endDate);
+                    }
+                    return match;
+                })
+                .collect(Collectors.toList());
+
+        double totalRevenue = filteredTransactions.stream()
+                .mapToDouble(MembershipTransaction::getAmountPaid)
+                .sum();
+                
+        // Agrupar ingresos por plan
+        Map<String, Double> revenueByPlanMap = new HashMap<>();
+        Map<String, java.util.Set<Long>> clientsByPlanMap = new HashMap<>();
         
-        double totalRevenue = 0;
-        for (Object[] row : revenueByPlanRaw) {
-            totalRevenue += ((Number) row[2]).doubleValue();
-        }
-        
-        final double finalTotal = totalRevenue;
-        List<com.example.gymbackend.payload.dto.PlanDistributionDTO> planDistribution = revenueByPlanRaw.stream().map(row -> {
-            String name = (String) row[0];
-            int clients = ((Number) row[1]).intValue();
-            double revenue = ((Number) row[2]).doubleValue();
-            // Evitar Locale ES problemas con comas
-            String percentage = finalTotal > 0 ? String.format(java.util.Locale.US, "%.1f%%", (revenue / finalTotal) * 100) : "0.0%";
-            return new com.example.gymbackend.payload.dto.PlanDistributionDTO(name, clients, revenue, percentage);
-        }).collect(Collectors.toList());
-        
-        int currentYear = today.getYear();
-        List<Object[]> financialStats = transactionRepository.findFinancialStatsByYear(currentYear);
-        double monthlyRevenue = 0;
-        int currentMonth = today.getMonthValue();
-        for (Object[] row : financialStats) {
-            if (((Number) row[0]).intValue() == currentMonth) {
-                monthlyRevenue = ((Number) row[1]).doubleValue();
+        for (MembershipTransaction t : filteredTransactions) {
+            if (t.getPlan() != null) {
+                String planName = t.getPlan().getName();
+                revenueByPlanMap.put(planName, revenueByPlanMap.getOrDefault(planName, 0.0) + t.getAmountPaid());
+                
+                clientsByPlanMap.putIfAbsent(planName, new java.util.HashSet<>());
+                if (t.getCustomer() != null) {
+                    clientsByPlanMap.get(planName).add(t.getCustomer().getId());
+                }
             }
         }
         
-        long totalUniqueCustomers = customerRepository.count();
+        final double finalTotal = totalRevenue;
+        List<com.example.gymbackend.payload.dto.PlanDistributionDTO> planDistribution = revenueByPlanMap.entrySet().stream()
+                .map(entry -> {
+                    String name = entry.getKey();
+                    double revenue = entry.getValue();
+                    int clients = clientsByPlanMap.get(name).size();
+                    String percentage = finalTotal > 0 ? String.format(java.util.Locale.US, "%.1f%%", (revenue / finalTotal) * 100) : "0.0%";
+                    return new com.example.gymbackend.payload.dto.PlanDistributionDTO(name, clients, revenue, percentage);
+                })
+                .sorted((a, b) -> Double.compare(b.getRevenue(), a.getRevenue()))
+                .collect(Collectors.toList());
+        
+        // Histórico por meses (usamos las transacciones filtradas para armar el chart data)
+        // Agruparemos por mes del año actual (o del año de la transacción).
+        // Para simplificar, agruparemos `historicalStats` usando el mes de `transactionDate`.
+        Map<Integer, Double> revenueByMonth = new HashMap<>();
+        Map<Integer, java.util.Set<Long>> signupsByMonth = new HashMap<>();
+        
+        int currentYear = today.getYear();
+        for (MembershipTransaction t : filteredTransactions) {
+            // Solo tomar transacciones del año en curso a menos que el filtro de fecha sea distinto, pero mantendremos la vista de 12 meses.
+            if (t.getTransactionDate().getYear() == currentYear) {
+                int month = t.getTransactionDate().getMonthValue();
+                revenueByMonth.put(month, revenueByMonth.getOrDefault(month, 0.0) + t.getAmountPaid());
+                
+                signupsByMonth.putIfAbsent(month, new java.util.HashSet<>());
+                if (t.getCustomer() != null) {
+                    signupsByMonth.get(month).add(t.getCustomer().getId());
+                }
+            }
+        }
+        
+        List<Map<String, Object>> historicalStats = new java.util.ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            Map<String, Object> monthData = new HashMap<>();
+            monthData.put("month", mapMonthName(i));
+            monthData.put("revenue", revenueByMonth.getOrDefault(i, 0.0));
+            monthData.put("signups", signupsByMonth.containsKey(i) ? signupsByMonth.get(i).size() : 0);
+            historicalStats.add(monthData);
+        }
+
+        double monthlyRevenue = revenueByMonth.getOrDefault(today.getMonthValue(), 0.0);
+        
+        // Promedio por cliente usando clientes únicos en las transacciones filtradas
+        long totalUniqueCustomers = filteredTransactions.stream()
+                .filter(t -> t.getCustomer() != null)
+                .map(t -> t.getCustomer().getId())
+                .distinct()
+                .count();
+                
         double averagePerCustomer = totalUniqueCustomers > 0 ? totalRevenue / totalUniqueCustomers : 0;
         
         return com.example.gymbackend.payload.dto.DashboardStatsDTO.builder()
@@ -212,6 +298,7 @@ public class MembershipServiceImpl implements MembershipService {
                 .averageRevenuePerCustomer(averagePerCustomer)
                 .monthlyRevenue(monthlyRevenue)
                 .planDistribution(planDistribution)
+                .historicalStats(historicalStats)
                 .build();
     }
 
