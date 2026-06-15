@@ -19,4 +19,7 @@ public class DashboardStatsDTO {
     private double monthlyRevenue;
     private List<PlanDistributionDTO> planDistribution;
     private List<Map<String, Object>> historicalStats;
+    private List<TopCustomerDTO> topCustomers;
+    private KeyMetricsDTO keyMetrics;
+    private List<MembershipAnalysisDTO> membershipAnalysis;
 }

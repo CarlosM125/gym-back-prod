@@ -12,6 +12,7 @@ F:\Gym\gym-backend\src\main\java\com\example\gymbackend\service\UserService.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\config\DbInitializer.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\service\BranchService.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\model\Membership.java
+F:\Gym\gym-backend\src\main\java\com\example\gymbackend\payload\dto\KeyMetricsDTO.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\model\Branch.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\model\Role.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\payload\response\ApiResponse.java
@@ -44,7 +45,9 @@ F:\Gym\gym-backend\src\main\java\com\example\gymbackend\model\SystemAuditLog.jav
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\repository\MarketingProposalRepository.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\payload\dto\MembershipDTO.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\service\CloudinaryService.java
+F:\Gym\gym-backend\src\main\java\com\example\gymbackend\payload\dto\MembershipAnalysisDTO.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\security\JwtUtil.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\service\MarketingAgentService.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\model\Customer.java
+F:\Gym\gym-backend\src\main\java\com\example\gymbackend\payload\dto\TopCustomerDTO.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\payload\dto\DashboardStatsDTO.java

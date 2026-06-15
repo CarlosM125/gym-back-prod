@@ -9,6 +9,7 @@ com\example\gymbackend\exception\GlobalExceptionHandler.class
 com\example\gymbackend\service\CustomerService.class
 com\example\gymbackend\service\impl\CustomerServiceImpl.class
 com\example\gymbackend\payload\dto\BranchDTO.class
+com\example\gymbackend\payload\dto\KeyMetricsDTO$KeyMetricsDTOBuilder.class
 com\example\gymbackend\controller\UserController.class
 com\example\gymbackend\model\Role.class
 com\example\gymbackend\security\JwtUtil.class
@@ -22,8 +23,10 @@ com\example\gymbackend\payload\dto\PlanDistributionDTO.class
 com\example\gymbackend\payload\response\ApiResponse$ApiResponseBuilder.class
 com\example\gymbackend\payload\dto\CustomerDTO.class
 com\example\gymbackend\controller\AuthController.class
+com\example\gymbackend\payload\dto\TopCustomerDTO$TopCustomerDTOBuilder.class
 com\example\gymbackend\model\Branch.class
 com\example\gymbackend\security\UserDetailsServiceImpl.class
+com\example\gymbackend\payload\dto\MembershipAnalysisDTO.class
 com\example\gymbackend\repository\BranchRepository.class
 com\example\gymbackend\repository\MembershipRepository.class
 com\example\gymbackend\config\DbInitializer.class
@@ -36,9 +39,11 @@ com\example\gymbackend\repository\UserRepository.class
 com\example\gymbackend\payload\dto\DashboardStatsDTO.class
 com\example\gymbackend\service\impl\BranchServiceImpl.class
 com\example\gymbackend\GymBackendApplication.class
+com\example\gymbackend\payload\dto\MembershipAnalysisDTO$MembershipAnalysisDTOBuilder.class
 com\example\gymbackend\repository\MembershipTransactionRepository.class
 com\example\gymbackend\model\SystemAuditLog.class
 com\example\gymbackend\payload\dto\MembershipPlanDTO$MembershipPlanDTOBuilder.class
+com\example\gymbackend\payload\dto\KeyMetricsDTO.class
 com\example\gymbackend\service\BranchService.class
 com\example\gymbackend\service\UserService.class
 com\example\gymbackend\payload\response\ApiResponse.class
@@ -55,6 +60,7 @@ com\example\gymbackend\security\SecurityConfig.class
 com\example\gymbackend\controller\AuthController$AuthRequest.class
 com\example\gymbackend\service\MarketingAgentService.class
 com\example\gymbackend\controller\BranchController.class
+com\example\gymbackend\payload\dto\TopCustomerDTO.class
 com\example\gymbackend\payload\dto\CustomerDTO$CustomerDTOBuilder.class
 com\example\gymbackend\payload\dto\MembershipDTO$MembershipDTOBuilder.class
 com\example\gymbackend\service\CloudinaryService.class
