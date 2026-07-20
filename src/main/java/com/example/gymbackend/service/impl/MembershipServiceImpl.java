@@ -356,25 +356,57 @@ public class MembershipServiceImpl implements MembershipService {
         }
         List<com.example.gymbackend.payload.dto.MembershipAnalysisDTO> membershipAnalysis = new java.util.ArrayList<>(analysisMap.values());
 
-        // 3. Métricas Clave (Mockeado para las gráficas de línea basándonos en históricos)
+        // 3. Métricas Clave (Calculadas en base a datos reales)
         List<Map<String, Object>> renewalRate = new java.util.ArrayList<>();
         List<Map<String, Object>> nonRenewalRate = new java.util.ArrayList<>();
         List<Map<String, Object>> newSignupsRate = new java.util.ArrayList<>();
-        
+
+        Map<Integer, Integer> newSignupsByMonthMap = new HashMap<>();
+        Map<Integer, Integer> renewalsByMonthMap = new HashMap<>();
+        Map<Integer, Integer> expirationsByMonthMap = new HashMap<>();
+
+        for (MembershipTransaction t : filteredTransactions) {
+            if (t.getTransactionDate().getYear() == currentYear && t.getCustomer() != null) {
+                int month = t.getTransactionDate().getMonthValue();
+                com.example.gymbackend.model.Customer c = t.getCustomer();
+                LocalDateTime firstTx = customerFirstTxMap.get(c);
+                if (firstTx != null && firstTx.getMonthValue() == month && firstTx.getYear() == currentYear) {
+                    newSignupsByMonthMap.put(month, newSignupsByMonthMap.getOrDefault(month, 0) + 1);
+                } else {
+                    renewalsByMonthMap.put(month, renewalsByMonthMap.getOrDefault(month, 0) + 1);
+                }
+            }
+        }
+
+        for (Membership m : allMemberships) {
+            if (m.getEndDate() != null && m.getEndDate().getYear() == currentYear && !"CANCELLED".equalsIgnoreCase(m.getStatus())) {
+                int month = m.getEndDate().getMonthValue();
+                expirationsByMonthMap.put(month, expirationsByMonthMap.getOrDefault(month, 0) + 1);
+            }
+        }
+
         for (int i = 1; i <= 12; i++) {
+            int renewals = renewalsByMonthMap.getOrDefault(i, 0);
+            int expirations = expirationsByMonthMap.getOrDefault(i, 0);
+            int nuevos = newSignupsByMonthMap.getOrDefault(i, 0);
+
+            double totalEndings = renewals + expirations;
+            double renRate = totalEndings > 0 ? (renewals / totalEndings) * 100.0 : 0.0;
+            double nonRenRate = totalEndings > 0 ? (expirations / totalEndings) * 100.0 : 0.0;
+
             Map<String, Object> ren = new HashMap<>();
             ren.put("month", mapMonthName(i));
-            ren.put("rate", 60 + (Math.random() * 20)); // 60-80%
+            ren.put("rate", renRate);
             renewalRate.add(ren);
 
             Map<String, Object> nonRen = new HashMap<>();
             nonRen.put("month", mapMonthName(i));
-            nonRen.put("rate", 10 + (Math.random() * 15)); // 10-25%
+            nonRen.put("rate", nonRenRate);
             nonRenewalRate.add(nonRen);
 
             Map<String, Object> newS = new HashMap<>();
             newS.put("month", mapMonthName(i));
-            newS.put("rate", 15 + (Math.random() * 15)); // 15-30%
+            newS.put("rate", nuevos); // Para nuevos, mandamos el conteo real
             newSignupsRate.add(newS);
         }
 
