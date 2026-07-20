@@ -454,4 +454,18 @@ public class MembershipServiceImpl implements MembershipService {
                 .isPromotion(plan.getIsPromotion())
                 .build();
     }
+
+    @Override
+    public List<com.example.gymbackend.payload.dto.CustomerHistoryDTO> getCustomerHistory(Long customerId) {
+        return transactionRepository.findByCustomerId(customerId).stream()
+                .sorted((t1, t2) -> t2.getTransactionDate().compareTo(t1.getTransactionDate()))
+                .map(t -> com.example.gymbackend.payload.dto.CustomerHistoryDTO.builder()
+                        .transactionId(t.getId())
+                        .transactionDate(t.getTransactionDate())
+                        .planName(t.getPlan() != null ? t.getPlan().getName() : "N/A")
+                        .amountPaid(t.getAmountPaid())
+                        .branchName(t.getBranch() != null ? t.getBranch().getName() : "N/A")
+                        .build())
+                .collect(Collectors.toList());
+    }
 }

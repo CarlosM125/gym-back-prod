@@ -46,12 +46,14 @@ com\example\gymbackend\payload\dto\MembershipPlanDTO$MembershipPlanDTOBuilder.cl
 com\example\gymbackend\payload\dto\KeyMetricsDTO.class
 com\example\gymbackend\service\BranchService.class
 com\example\gymbackend\service\UserService.class
+com\example\gymbackend\payload\dto\CustomerHistoryDTO.class
 com\example\gymbackend\payload\response\ApiResponse.class
 com\example\gymbackend\service\MembershipService.class
 com\example\gymbackend\payload\dto\DashboardStatsDTO$DashboardStatsDTOBuilder.class
 com\example\gymbackend\model\MembershipTransaction.class
 com\example\gymbackend\payload\dto\UserDTO$UserDTOBuilder.class
 com\example\gymbackend\repository\MembershipPlanRepository.class
+com\example\gymbackend\payload\dto\CustomerHistoryDTO$CustomerHistoryDTOBuilder.class
 com\example\gymbackend\payload\dto\MembershipDTO.class
 com\example\gymbackend\config\WebConfig.class
 com\example\gymbackend\controller\MembershipController.class

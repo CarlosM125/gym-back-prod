@@ -4,6 +4,7 @@ F:\Gym\gym-backend\src\main\java\com\example\gymbackend\repository\UserRepositor
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\repository\MembershipPlanRepository.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\exception\GlobalExceptionHandler.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\controller\MembershipController.java
+F:\Gym\gym-backend\src\main\java\com\example\gymbackend\payload\dto\CustomerHistoryDTO.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\security\SecurityConfig.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\controller\UserController.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\controller\BranchController.java

@@ -82,4 +82,9 @@ public class MembershipController {
     public ResponseEntity<ApiResponse<com.example.gymbackend.payload.dto.MembershipPlanDTO>> updatePlan(@PathVariable Long id, @RequestBody com.example.gymbackend.payload.dto.MembershipPlanDTO dto) {
         return ResponseEntity.ok(ApiResponse.success(membershipService.updatePlan(id, dto), "Plan updated"));
     }
+
+    @GetMapping("/history/customer/{customerId}")
+    public ResponseEntity<ApiResponse<List<com.example.gymbackend.payload.dto.CustomerHistoryDTO>>> getCustomerHistory(@PathVariable Long customerId) {
+        return ResponseEntity.ok(ApiResponse.success(membershipService.getCustomerHistory(customerId), "Customer history loaded"));
+    }
 }

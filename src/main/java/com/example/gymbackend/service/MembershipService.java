@@ -21,4 +21,5 @@ public interface MembershipService {
             Long branchId,
             Long planId,
             String status);
+    List<com.example.gymbackend.payload.dto.CustomerHistoryDTO> getCustomerHistory(Long customerId);
 }
