@@ -87,6 +87,26 @@ public class MembershipServiceImpl implements MembershipService {
         
         LocalDate txDate = dto.getStartDate() != null ? dto.getStartDate() : LocalDate.now();
         int durationMonths = (plan != null && plan.getDurationMonths() != null) ? plan.getDurationMonths() : 1;
+        double finalAmount = dto.getAmountPaid() != null ? dto.getAmountPaid() : (plan != null ? plan.getPriceAmount() : 0.0);
+
+        // Prevenir duplicados exactos (Idempotencia por doble clic)
+        if (customer.getId() != null) {
+            final MembershipPlan finalPlan = plan;
+            boolean duplicateExists = transactionRepository.findByCustomerId(customer.getId()).stream()
+                    .anyMatch(t -> 
+                        t.getTransactionDate().equals(txDate.atStartOfDay()) &&
+                        (t.getPlan() != null && finalPlan != null && t.getPlan().getId().equals(finalPlan.getId())) &&
+                        Math.abs(t.getAmountPaid() - finalAmount) < 0.01
+                    );
+                    
+            if (duplicateExists) {
+                // Ya existe, devolver la membresía activa actual sin hacer nada
+                Membership active = membershipRepository.findByCustomerId(customer.getId()).stream()
+                        .filter(m -> "ACTIVE".equals(m.getStatus()))
+                        .findFirst().orElse(null);
+                if (active != null) return mapToDTO(active);
+            }
+        }
 
         // Cancel existing active memberships
         List<Membership> existing = membershipRepository.findByCustomerId(customer.getId());
@@ -110,7 +130,7 @@ public class MembershipServiceImpl implements MembershipService {
         tx.setCustomer(customer);
         tx.setBranch(branch);
         tx.setPlan(plan);
-        tx.setAmountPaid(dto.getAmountPaid() != null ? dto.getAmountPaid() : (plan != null ? plan.getPriceAmount() : 0.0));
+        tx.setAmountPaid(finalAmount);
         tx.setTransactionDate(txDate.atStartOfDay());
         transactionRepository.save(tx);
 
