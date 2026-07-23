@@ -26,4 +26,15 @@ public interface MembershipTransactionRepository extends JpaRepository<Membershi
             "GROUP BY p.name " +
             "ORDER BY revenue DESC", nativeQuery = true)
     List<Object[]> findRevenueByPlan();
+
+    @Query("SELECT t FROM MembershipTransaction t WHERE " +
+           "(:branchId IS NULL OR t.branch.id = :branchId) AND " +
+           "(:planId IS NULL OR t.plan.id = :planId) AND " +
+           "(cast(:startDate as timestamp) IS NULL OR t.transactionDate >= :startDate) AND " +
+           "(cast(:endDate as timestamp) IS NULL OR t.transactionDate <= :endDate)")
+    List<MembershipTransaction> findFilteredTransactions(
+            @Param("branchId") Long branchId, 
+            @Param("planId") Long planId, 
+            @Param("startDate") java.time.LocalDateTime startDate, 
+            @Param("endDate") java.time.LocalDateTime endDate);
 }

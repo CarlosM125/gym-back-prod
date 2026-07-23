@@ -58,9 +58,33 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public List<CustomerDTO> getAllCustomers() {
-        return customerRepository.findAll().stream()
+        List<Customer> allCustomers = customerRepository.findAll().stream()
                 .filter(c -> !"DELETED".equals(c.getStatus()))
-                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+                
+        List<Long> customerIds = allCustomers.stream().map(Customer::getId).collect(Collectors.toList());
+        
+        // Evita el error de IN clause vacio
+        java.util.Map<Long, com.example.gymbackend.model.Membership> activeMemMap = new java.util.HashMap<>();
+        if (!customerIds.isEmpty()) {
+            List<com.example.gymbackend.model.Membership> activeMemberships = membershipRepository.findByCustomerIdIn(customerIds).stream()
+                    .filter(m -> "ACTIVE".equals(m.getStatus()))
+                    .collect(Collectors.toList());
+                    
+            for (com.example.gymbackend.model.Membership m : activeMemberships) {
+                if (m.getCustomer() != null) {
+                    Long cid = m.getCustomer().getId();
+                    if (!activeMemMap.containsKey(cid) || 
+                        (m.getEndDate() != null && activeMemMap.get(cid).getEndDate() != null && 
+                         m.getEndDate().isAfter(activeMemMap.get(cid).getEndDate()))) {
+                        activeMemMap.put(cid, m);
+                    }
+                }
+            }
+        }
+        
+        return allCustomers.stream()
+                .map(c -> mapToDTOWithMem(c, activeMemMap.get(c.getId())))
                 .collect(Collectors.toList());
     }
 
@@ -129,6 +153,17 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     private CustomerDTO mapToDTO(Customer c) {
+        com.example.gymbackend.model.Membership activeMem = null;
+        try {
+            activeMem = membershipRepository.findByCustomerId(c.getId()).stream()
+                .filter(m -> "ACTIVE".equals(m.getStatus()))
+                .findFirst().orElse(null);
+        } catch(Exception ignored) {}
+        
+        return mapToDTOWithMem(c, activeMem);
+    }
+    
+    private CustomerDTO mapToDTOWithMem(Customer c, com.example.gymbackend.model.Membership activeMem) {
         CustomerDTO.CustomerDTOBuilder builder = CustomerDTO.builder()
                 .id(c.getId())
                 .fullName(c.getFullName())
@@ -143,27 +178,20 @@ public class CustomerServiceImpl implements CustomerService {
                 .homeBranchName(c.getHomeBranch() != null ? c.getHomeBranch().getName() : null)
                 .createdAt(c.getCreatedAt());
 
-        // Attach active membership info if exists
-        try {
-            membershipRepository.findByCustomerId(c.getId()).stream()
-                .filter(m -> "ACTIVE".equals(m.getStatus()))
-                .findFirst()
-                .ifPresent(activeMem -> {
-                    boolean isExpired = activeMem.getEndDate() != null && activeMem.getEndDate().isBefore(LocalDate.now());
-                    
-                    builder.currentStartDate(activeMem.getStartDate());
-                    builder.currentEndDate(activeMem.getEndDate());
-                    
-                    builder.currentPlanName("Plan Base");
-                    
-                    if (isExpired) {
-                        builder.membershipStatus("EXPIRED");
-                        // Optionally update DB to CANCELLED/EXPIRED if needed, but for now just DTO mapping
-                    } else {
-                        builder.membershipStatus("ACTIVE");
-                    }
-                });
-        } catch(Exception ignored) {}
+        if (activeMem != null) {
+            boolean isExpired = activeMem.getEndDate() != null && activeMem.getEndDate().isBefore(LocalDate.now());
+            
+            builder.currentStartDate(activeMem.getStartDate());
+            builder.currentEndDate(activeMem.getEndDate());
+            
+            builder.currentPlanName("Plan Base");
+            
+            if (isExpired) {
+                builder.membershipStatus("EXPIRED");
+            } else {
+                builder.membershipStatus("ACTIVE");
+            }
+        }
 
         return builder.build();
     }

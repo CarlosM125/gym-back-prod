@@ -176,49 +176,19 @@ public class MembershipServiceImpl implements MembershipService {
         
         LocalDate today = LocalDate.now();
         
-        // Filtrado de clientes activos
-        long activeCustomers = membershipRepository.findAll().stream()
-                .filter(m -> {
-                    boolean match = true;
-                    if (status != null && !status.isEmpty()) {
-                        match = match && status.equalsIgnoreCase(m.getStatus());
-                    } else {
-                        // Si no hay filtro de estado, contamos los activos por defecto o todos? 
-                        // El dashboard pide "Membresías Activas". Si no hay filtro, asumimos activas.
-                        match = match && "ACTIVE".equalsIgnoreCase(m.getStatus()) && m.getEndDate() != null && !m.getEndDate().isBefore(today);
-                    }
-                    if (branchId != null) {
-                        match = match && m.getBranch() != null && m.getBranch().getId().equals(branchId);
-                    }
-                    // Plan ID filter directly on membership? Membership has no plan directly, wait, membership doesn't have a plan. 
-                    // Let's check Membership model... yes it doesn't have plan_id, only Transactions do. Or does it?
-                    // Let's ignore planId for activeCustomers if Membership doesn't have it, or assume activeCustomers is global if planId is selected.
-                    return match;
-                })
-                .map(m -> m.getCustomer().getId())
-                .distinct()
-                .count();
+        // Filtrado de clientes activos usando query nativa u optimizada
+        long activeCustomers = membershipRepository.countActiveCustomers(
+                status != null && !status.isEmpty() ? status : null,
+                today,
+                branchId
+        );
 
         // Filtrado de transacciones
-        List<MembershipTransaction> allTransactions = transactionRepository.findAll();
-        List<MembershipTransaction> filteredTransactions = allTransactions.stream()
-                .filter(t -> {
-                    boolean match = true;
-                    if (branchId != null) {
-                        match = match && t.getBranch() != null && t.getBranch().getId().equals(branchId);
-                    }
-                    if (planId != null) {
-                        match = match && t.getPlan() != null && t.getPlan().getId().equals(planId);
-                    }
-                    if (startDate != null) {
-                        match = match && !t.getTransactionDate().toLocalDate().isBefore(startDate);
-                    }
-                    if (endDate != null) {
-                        match = match && !t.getTransactionDate().toLocalDate().isAfter(endDate);
-                    }
-                    return match;
-                })
-                .collect(Collectors.toList());
+        java.time.LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
+        java.time.LocalDateTime endDateTime = endDate != null ? endDate.atTime(23, 59, 59) : null;
+        List<MembershipTransaction> filteredTransactions = transactionRepository.findFilteredTransactions(
+                branchId, planId, startDateTime, endDateTime
+        );
 
         double totalRevenue = filteredTransactions.stream()
                 .mapToDouble(MembershipTransaction::getAmountPaid)
