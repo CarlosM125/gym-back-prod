@@ -1,0 +1,23 @@
+name: Keep Backend Alive
+
+on:
+  schedule:
+    # Ejecuta cada 13 minutos para evitar que Render suspenda el servicio (suspende a los 15 min)
+    - cron: '*/13 * * * *'
+  workflow_dispatch: # Permite ejecutar manualmente desde GitHub
+
+jobs:
+  ping:
+    name: Ping Backend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping al backend para mantenerlo activo
+        run: |
+          echo "🏋️ Haciendo ping al backend en $(date)..."
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 https://gym-back-prod.onrender.com/api/v1/memberships/plans)
+          echo "✅ Respuesta del servidor: HTTP $STATUS"
+          if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 500 ]; then
+            echo "✅ Backend activo"
+          else
+            echo "⚠️ El backend respondió con HTTP $STATUS"
+          fi
