@@ -1,5 +1,6 @@
 package com.example.gymbackend.service.impl;
 
+import com.example.gymbackend.exception.ResourceNotFoundException;
 import com.example.gymbackend.model.Branch;
 import com.example.gymbackend.model.Customer;
 import com.example.gymbackend.payload.dto.CustomerDTO;
@@ -91,7 +92,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public CustomerDTO getCustomerByDocumentId(String documentId) {
         Customer customer = customerRepository.findByDocumentId(documentId)
-                .orElseThrow(() -> new IllegalArgumentException("Customer not found: " + documentId));
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con documento: " + documentId));
         return mapToDTO(customer);
     }
 
