@@ -26,6 +26,20 @@ public class MembershipPlan extends BaseEntity {
     @Column(name = "duration_months")
     private Integer durationMonths;
 
+    // Legacy column from older schema version. Required because production DB still has this column as NOT NULL.
+    @Column(name = "duration_days", nullable = false)
+    private Integer durationDays = 0;
+
     @Column(name = "is_promotion")
     private Boolean isPromotion;
+
+    @PrePersist
+    @PreUpdate
+    public void syncLegacyFields() {
+        if (this.durationMonths != null) {
+            this.durationDays = this.durationMonths * 30;
+        } else {
+            this.durationDays = 0;
+        }
+    }
 }
