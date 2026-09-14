@@ -33,6 +33,9 @@ public class MembershipPlan extends BaseEntity {
     @Column(name = "is_promotion")
     private Boolean isPromotion;
 
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive = true;
+
     @PrePersist
     @PreUpdate
     public void syncLegacyFields() {

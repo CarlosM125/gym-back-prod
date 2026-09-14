@@ -39,6 +39,7 @@ public class MembershipServiceImpl implements MembershipService {
         plan.setPriceAmount(dto.getPriceAmount());
         plan.setDurationMonths(dto.getDurationMonths());
         plan.setIsPromotion(dto.getIsPromotion());
+        plan.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
         return mapPlanToDTO(planRepository.save(plan));
     }
 
@@ -51,6 +52,9 @@ public class MembershipServiceImpl implements MembershipService {
         plan.setPriceAmount(dto.getPriceAmount());
         plan.setDurationMonths(dto.getDurationMonths());
         plan.setIsPromotion(dto.getIsPromotion());
+        if (dto.getIsActive() != null) {
+            plan.setIsActive(dto.getIsActive());
+        }
         return mapPlanToDTO(planRepository.save(plan));
     }
 
@@ -442,6 +446,7 @@ public class MembershipServiceImpl implements MembershipService {
                 .priceAmount(plan.getPriceAmount())
                 .durationMonths(plan.getDurationMonths())
                 .isPromotion(plan.getIsPromotion())
+                .isActive(plan.getIsActive())
                 .build();
     }
 

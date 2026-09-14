@@ -16,4 +16,5 @@ public class MembershipPlanDTO {
     private Double priceAmount;
     private Integer durationMonths;
     private Boolean isPromotion;
+    private Boolean isActive;
 }
