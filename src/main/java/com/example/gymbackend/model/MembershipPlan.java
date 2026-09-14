@@ -33,7 +33,7 @@ public class MembershipPlan extends BaseEntity {
     @Column(name = "is_promotion")
     private Boolean isPromotion;
 
-    @Column(name = "is_active", nullable = false)
+    @Column(name = "is_active", columnDefinition = "boolean default true")
     private Boolean isActive = true;
 
     @PrePersist

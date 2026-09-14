@@ -446,7 +446,7 @@ public class MembershipServiceImpl implements MembershipService {
                 .priceAmount(plan.getPriceAmount())
                 .durationMonths(plan.getDurationMonths())
                 .isPromotion(plan.getIsPromotion())
-                .isActive(plan.getIsActive())
+                .isActive(plan.getIsActive() != null ? plan.getIsActive() : true)
                 .build();
     }
 

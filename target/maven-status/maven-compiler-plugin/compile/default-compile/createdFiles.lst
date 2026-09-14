@@ -36,6 +36,7 @@ com\example\gymbackend\service\impl\UserServiceImpl.class
 com\example\gymbackend\model\User.class
 com\example\gymbackend\model\Membership.class
 com\example\gymbackend\repository\UserRepository.class
+com\example\gymbackend\exception\ResourceNotFoundException.class
 com\example\gymbackend\payload\dto\DashboardStatsDTO.class
 com\example\gymbackend\service\impl\BranchServiceImpl.class
 com\example\gymbackend\GymBackendApplication.class

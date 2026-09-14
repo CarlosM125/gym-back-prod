@@ -8,6 +8,7 @@ F:\Gym\gym-backend\src\main\java\com\example\gymbackend\payload\dto\CustomerHist
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\security\SecurityConfig.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\controller\UserController.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\controller\BranchController.java
+F:\Gym\gym-backend\src\main\java\com\example\gymbackend\exception\ResourceNotFoundException.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\model\MembershipPlan.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\service\UserService.java
 F:\Gym\gym-backend\src\main\java\com\example\gymbackend\config\DbInitializer.java
