@@ -28,6 +28,16 @@ public class CustomerController {
         return ResponseEntity.ok(ApiResponse.success(customerService.getAllCustomers(), "Customers fetched"));
     }
 
+    @GetMapping("/paged")
+    public ResponseEntity<ApiResponse<org.springframework.data.domain.Page<CustomerDTO>>> getCustomersPaged(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "ALL") String filterStatus) {
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size, org.springframework.data.domain.Sort.by("id").descending());
+        return ResponseEntity.ok(ApiResponse.success(customerService.getCustomersPaged(search, filterStatus, pageable), "Customers fetched"));
+    }
+
     @GetMapping("/by-document/{documentId}")
     public ResponseEntity<ApiResponse<CustomerDTO>> getByDocument(@PathVariable String documentId) {
         return ResponseEntity.ok(ApiResponse.success(

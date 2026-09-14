@@ -10,4 +10,5 @@ public interface CustomerService {
     CustomerDTO getCustomerByDocumentId(String documentId);
     CustomerDTO updateCustomer(Long id, CustomerDTO dto);
     void deleteCustomer(Long id);
+    org.springframework.data.domain.Page<CustomerDTO> getCustomersPaged(String search, String filterStatus, org.springframework.data.domain.Pageable pageable);
 }

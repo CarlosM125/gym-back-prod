@@ -38,6 +38,7 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setDocumentId(dto.getDocumentId());
         customer.setEmail(dto.getEmail());
         customer.setPhone(dto.getPhone());
+        customer.setBirthDate(dto.getBirthDate());
         customer.setProfileImageUrl(dto.getProfileImageUrl());
         customer.setStatus("ACTIVE");
         customer.setConsentGiven(dto.getConsentGiven() != null ? dto.getConsentGiven() : false);
@@ -90,6 +91,32 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public org.springframework.data.domain.Page<CustomerDTO> getCustomersPaged(String search, String filterStatus, org.springframework.data.domain.Pageable pageable) {
+        org.springframework.data.domain.Page<Customer> page;
+        page = customerRepository.searchCustomers(search != null ? search.trim() : null, filterStatus, pageable);
+
+        List<Long> customerIds = page.getContent().stream().map(Customer::getId).collect(Collectors.toList());
+        java.util.Map<Long, com.example.gymbackend.model.Membership> activeMemMap = new java.util.HashMap<>();
+        if (!customerIds.isEmpty()) {
+            List<com.example.gymbackend.model.Membership> activeMemberships = membershipRepository.findByCustomerIdIn(customerIds).stream()
+                    .filter(m -> "ACTIVE".equals(m.getStatus()))
+                    .collect(Collectors.toList());
+            for (com.example.gymbackend.model.Membership m : activeMemberships) {
+                if (m.getCustomer() != null) {
+                    Long cid = m.getCustomer().getId();
+                    if (!activeMemMap.containsKey(cid) || 
+                        (m.getEndDate() != null && activeMemMap.get(cid).getEndDate() != null && 
+                         m.getEndDate().isAfter(activeMemMap.get(cid).getEndDate()))) {
+                        activeMemMap.put(cid, m);
+                    }
+                }
+            }
+        }
+
+        return page.map(c -> mapToDTOWithMem(c, activeMemMap.get(c.getId())));
+    }
+
+    @Override
     public CustomerDTO getCustomerByDocumentId(String documentId) {
         Customer customer = customerRepository.findByDocumentId(documentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con documento: " + documentId));
@@ -113,6 +140,12 @@ public class CustomerServiceImpl implements CustomerService {
         }
         if (dto.getEmail() != null) {
             customer.setEmail(dto.getEmail());
+        }
+        if (dto.getBirthDate() != null) {
+            customer.setBirthDate(dto.getBirthDate());
+        }
+        if (dto.getPhone() != null) {
+            customer.setPhone(dto.getPhone());
         }
         if (dto.getProfileImageUrl() != null && !dto.getProfileImageUrl().isEmpty() && !dto.getProfileImageUrl().equals(customer.getProfileImageUrl())) {
             // Delete old image if it exists
@@ -174,6 +207,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .pinZkteco(c.getPinZkteco())
                 .profileImageUrl(c.getProfileImageUrl())
                 .status(c.getStatus())
+                .birthDate(c.getBirthDate())
                 .consentGiven(c.getConsentGiven())
                 .homeBranchId(c.getHomeBranch() != null ? c.getHomeBranch().getId() : null)
                 .homeBranchName(c.getHomeBranch() != null ? c.getHomeBranch().getName() : null)

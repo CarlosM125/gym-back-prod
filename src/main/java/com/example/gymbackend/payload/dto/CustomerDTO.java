@@ -14,6 +14,7 @@ public class CustomerDTO {
     private String documentId;
     private String email;
     private String phone;
+    private LocalDate birthDate;
     private Integer pinZkteco;
     private String profileImageUrl;
     private String status;

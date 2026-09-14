@@ -3,6 +3,7 @@ package com.example.gymbackend.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import java.time.LocalDate;
 
 /**
  * Represents a gym member/client (the person who buys memberships).
@@ -29,6 +30,9 @@ public class Customer extends BaseEntity {
 
     @Column(name = "phone")
     private String phone;
+
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
 
     @Column(name = "pin_zkteco", unique = true)
     private Integer pinZkteco;
